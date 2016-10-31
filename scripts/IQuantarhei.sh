@@ -1,6 +1,6 @@
 #! /bin/sh
 
-python ../IQuantarhei/tmain.py &
+python ../IQuantarhei/main.py &
 
 
 

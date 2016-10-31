@@ -1,6 +1,6 @@
 @echo off
 
-start "" /B python IQuantarhei/main.py
+start "" /B python IQuantarhei\scripts\main.py
 
 
 
