@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import signal
 import sys
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -32,7 +33,7 @@ class MainWindow(QMainWindow):
       file.addAction("Quit")
       file.addSeparator()
       file.addAction("Quantarhei Preferences ...")
-      file.addAction("Preferences ...")
+      file.addAction("IQuantarhei Preferences ...")
       file.triggered[QAction].connect(self.file_action)
       
       view = bar.addMenu("View")
@@ -41,7 +42,8 @@ class MainWindow(QMainWindow):
       view.triggered[QAction].connect(self.view_action)
       
       console = bar.addMenu("Consoles")
-      console.addAction("Open Qt Console")
+      console.addAction("Open Inprocess Qt Console")
+      console.addAction("Open Qt Console with Kernel")
       console.addSeparator()
       console.addAction("PYTHONPATH Manager ...")
       console.triggered[QAction].connect(self.console_action)
@@ -85,12 +87,12 @@ class MainWindow(QMainWindow):
        
    def console_action(self, q):
        
-       if q.text() == "Open Qt Console":
+       if q.text() == "Open Inprocess Qt Console":
           MainWindow.count = MainWindow.count+1
           sub = QMdiSubWindow()
-          qtc = qtconsole()
+          qtc = inprocess_qtconsole()
           sub.setWidget(qtc)
-          sub.setWindowTitle("Jupyter Qt Console (IPython)")
+          sub.setWindowTitle("Inprocess Jupyter Qt Console (IPython)")
           self.mdi.addSubWindow(sub)
           sub.show()
 
@@ -105,7 +107,7 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-def qtconsole():
+def inprocess_qtconsole():
     
     
     #w = QtGui.QWidget()
