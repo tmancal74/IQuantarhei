@@ -8,6 +8,9 @@ from PyQt4.QtGui import *
 
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
+from qtconsole.client import QtKernelClient
+from qtconsole.manager import QtKernelManager
+
 
 class MainWindow(QMainWindow):
    count = 0
@@ -135,11 +138,21 @@ Quantarhei package
        if q.text() == "Open Inprocess Qt Console":
           MainWindow.count = MainWindow.count+1
           sub = QMdiSubWindow()
-          qtc = inprocess_qtconsole()
+          qtc = self.inprocess_qtconsole()
           sub.setWidget(qtc)
           sub.setWindowTitle("Inprocess Jupyter Qt Console (IPython)")
           self.mdi.addSubWindow(sub)
           sub.show()
+          qtc.execute("%matplotlib inline")
+          
+       if q.text() == "Open Qt Console with Kernel":
+          MainWindow.count = MainWindow.count+1
+          sub = QMdiSubWindow()
+          qtc = independent_qtconsole()
+          sub.setWidget(qtc)
+          sub.setWindowTitle("Jupyter Qt Console (IPython)")
+          self.mdi.addSubWindow(sub)
+          sub.show()         
 
    def closeEvent(self, event):
 
@@ -152,25 +165,51 @@ Quantarhei package
         else:
             event.ignore()
 
-def inprocess_qtconsole():
+   def inprocess_qtconsole(self):
+    
+       #w = QtGui.QWidget()
+       kernel_manager = QtInProcessKernelManager()
+       kernel_manager.start_kernel(show_banner=False)
+       kernel = kernel_manager.kernel
+       kernel.gui = 'qt4'
+       self.kernel_manager = kernel_manager
+
+       kernel_client = kernel_manager.client()
+       kernel_client.start_channels()
+       self.kernel_client = kernel_client
+
+       ipython_widget = RichJupyterWidget()
+       ipython_widget.kernel_manager = kernel_manager
+       ipython_widget.kernel_client = kernel_client
+       
+       ipython_widget.exit_requested.connect(self.stop_inprocess)
+       
+       ipython_widget.show()
+       self.ipython_widget = ipython_widget
+
+       return ipython_widget
+    
+   def stop_inprocess(self):
+       self.kernel_client.stop_channels()
+       self.kernel_manager.shutdown_kernel()
     
     
-    #w = QtGui.QWidget()
-    kernel_manager = QtInProcessKernelManager()
+def independent_qtconsole():
+    
+    kernel_manager = QtKernelManager()
     kernel_manager.start_kernel(show_banner=False)
     kernel = kernel_manager.kernel
     kernel.gui = 'qt4'
-
+    
     kernel_client = kernel_manager.client()
     kernel_client.start_channels()
-
+    
     ipython_widget = RichJupyterWidget()
     ipython_widget.kernel_manager = kernel_manager
     ipython_widget.kernel_client = kernel_client
     ipython_widget.show()
 
     return ipython_widget
-
 
 def sigint_handler(*args):
     """Handler for the SIGINT signal."""
