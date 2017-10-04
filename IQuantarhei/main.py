@@ -2,6 +2,7 @@
 import signal
 import sys
 import os
+import time
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -10,6 +11,8 @@ from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 from qtconsole.client import QtKernelClient
 from qtconsole.manager import QtKernelManager
+
+from splash import MovieSplashScreen
 
 
 class MainWindow(QMainWindow):
@@ -225,8 +228,20 @@ def main():
     signal.signal(signal.SIGINT, sigint_handler)
     
     app = QApplication(sys.argv)
+    
+    movie = QMovie("/Users/tomas/GitHub/IQuantarhei/IQuantarhei/animated.gif")
+    splash = MovieSplashScreen(movie)
+    splash.show()
+    
+    start = time.time()
+    
+    while movie.state() == QMovie.Running and time.time() < start + 8:
+        app.processEvents()    
+    
+    
     ex = MainWindow()
     ex.show()
+    splash.finish(ex)
     sys.exit(app.exec_())
 	
 if __name__ == '__main__':
